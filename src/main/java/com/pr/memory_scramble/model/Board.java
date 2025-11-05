@@ -1,4 +1,4 @@
-package com.pr.memory_scramble;
+package com.pr.memory_scramble.model;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;

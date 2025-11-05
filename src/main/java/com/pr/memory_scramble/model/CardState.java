@@ -1,4 +1,4 @@
-package com.pr.memory_scramble;
+package com.pr.memory_scramble.model;
 
 public enum CardState {
     DOWN,
