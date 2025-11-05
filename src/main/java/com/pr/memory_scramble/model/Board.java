@@ -31,4 +31,13 @@ public class Board {
             cards.add(new Card(card));
         }
     }
+
+    public String toString(String playerId){
+        StringBuilder board = new StringBuilder(rows + "x" + columns);
+        cards.forEach(card -> {
+            board.append("\n").append(card.toString(playerId));
+        });
+
+        return board.toString();
+    }
 }

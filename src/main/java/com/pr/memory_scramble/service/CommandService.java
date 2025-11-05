@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 public class CommandService {
     private final Board board;
 
-    String look(String playerId){
-        throw new RuntimeException();
+    public String look(String playerId){
+        return board.toString(playerId);
     };
 
-    String flip(String playerId, int row, int column){
+    public String flip(String playerId, int row, int column){
         throw new RuntimeException();
     }
 }

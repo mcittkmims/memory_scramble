@@ -17,7 +17,7 @@ public class GameController {
     @GetMapping("/look/{playerId}")
     @ResponseStatus(HttpStatus.OK)
     public String look(@PathVariable String playerId){
-        throw new UnsupportedOperationException();
+        return commandService.look(playerId);
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")

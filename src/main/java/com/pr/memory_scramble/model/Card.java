@@ -20,4 +20,11 @@ public class Card {
         return value;
     }
 
+    public String toString(String playerId){
+        if (state.equals(CardState.CONTROLLED) && playerId.equals(controlledBy)){
+            return "my " + value;
+        }
+        return state + " " + value;
+    }
+
 }
