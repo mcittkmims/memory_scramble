@@ -1,6 +1,7 @@
 package com.pr.memory_scramble.exception.handler;
 
 import com.pr.memory_scramble.exception.CardRemovedException;
+import com.pr.memory_scramble.exception.InvalidCardAddressException;
 import com.pr.memory_scramble.exception.RestrictedCardAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRestrictedCardAccess(CardRemovedException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCardAddressException.class)
+    public ResponseEntity<String> handleRestrictedCardAccess(InvalidCardAddressException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage());
     }
 }

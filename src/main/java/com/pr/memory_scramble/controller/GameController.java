@@ -1,6 +1,9 @@
 package com.pr.memory_scramble.controller;
 
 import com.pr.memory_scramble.service.CommandService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,12 +21,15 @@ public class GameController {
 
     @GetMapping("/look/{playerId}")
     @ResponseStatus(HttpStatus.OK)
-    public CompletableFuture<String> look(@PathVariable String playerId){
+    public CompletableFuture<String> look(@Valid @PathVariable @NotBlank String playerId){
         return commandService.look(playerId);
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")
-    public CompletableFuture<String> flip(@PathVariable String playerId, @PathVariable int row, @PathVariable int column) throws InterruptedException {
+    public CompletableFuture<String> flip(
+            @Valid @PathVariable @NotBlank String playerId,
+            @Valid @PathVariable @Min(0) int row,
+            @Valid @PathVariable @Min(0) int column) throws InterruptedException {
         return commandService.flip(playerId, row, column);
     }
 }

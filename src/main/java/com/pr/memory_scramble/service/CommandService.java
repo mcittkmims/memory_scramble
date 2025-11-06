@@ -1,5 +1,6 @@
 package com.pr.memory_scramble.service;
 
+import com.pr.memory_scramble.exception.InvalidCardAddressException;
 import com.pr.memory_scramble.model.Board;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -20,7 +21,9 @@ public class CommandService {
 
     @Async
     public CompletableFuture<String> flip(String playerId, int row, int column) throws InterruptedException {
-        String result =  board.flip(playerId, row, column);
+        if(row >= board.getRows() || column >= board.getColumns())
+            throw new InvalidCardAddressException("Row and Column should not be bigger than the grid");
+        String result =  board.flip(playerId, row *  board.getColumns() + column);
         return CompletableFuture.completedFuture(result);
     }
 }

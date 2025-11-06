@@ -1,6 +1,7 @@
 package com.pr.memory_scramble.model;
 
 import com.pr.memory_scramble.exception.RestrictedCardAccessException;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class Board {
+    @Getter
     private final int rows;
+    @Getter
     private final int columns;
 
     private final List<Card> cards = new ArrayList<>();
@@ -35,9 +38,7 @@ public class Board {
         }
     }
 
-    public String flip(String playerId, int row, int column) throws InterruptedException {
-        int index = getIndex(row, column);
-
+    public String flip(String playerId, int index) throws InterruptedException {
         this.flipDownUnmatchedCards(playerId);
         this.removeMatchedCards(playerId);
 
@@ -54,6 +55,13 @@ public class Board {
         return this.toString(playerId);
     }
 
+    public String toString(String playerId) {
+        StringBuilder board = new StringBuilder(rows + "x" + columns);
+        cards.forEach(card -> board.append("\n").append(card.toString(playerId)));
+
+        return board.toString();
+    }
+
     private void flipSecondCard(String playerId, Card selectedCard, Card previousCard) {
         try {
             selectedCard.flipUpAsSecond(playerId);
@@ -65,17 +73,6 @@ public class Board {
             previousCard.relinquishControl();
             throw e;
         }
-    }
-
-    public String toString(String playerId) {
-        StringBuilder board = new StringBuilder(rows + "x" + columns);
-        cards.forEach(card -> board.append("\n").append(card.toString(playerId)));
-
-        return board.toString();
-    }
-
-    private int getIndex(int row, int column) {
-        return row * columns + column;
     }
 
     private void flipDownUnmatchedCards(String playerId) {
