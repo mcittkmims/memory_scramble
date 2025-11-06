@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class Board {
@@ -34,40 +36,35 @@ public class Board {
     }
 
     public String flip(String playerId, int row, int column) throws InterruptedException {
-        int index = row * columns + column;
+        int index = getIndex(row, column);
 
-        cards.stream()
-                .filter(card -> card.wasControlledByPlayer(playerId))
-                .forEach(Card::flipDown);
+        this.flipDownUnmatchedCards(playerId);
+        this.removeMatchedCards(playerId);
 
+        Card selectedCard = cards.get(index);
+        Card previousCard = getPreviousControlledCard(playerId);
 
-        List<Card> controlledByPlayer = cards.stream().filter(card -> card.isControlledByPlayer(playerId)).toList();
-        if(controlledByPlayer.size() == 2){
-            controlledByPlayer.forEach(Card::removeCard);
+        if (previousCard == null) {
+            selectedCard.flipUpAsFirst(playerId);
         }
-
-
-        try {
-            if (controlledByPlayer.isEmpty() || controlledByPlayer.size() == 2) {
-                cards.get(index).flipUpAsFirst(playerId);
-            } else {
-                cards.get(index).flipUpAsSecond(playerId);
-            }
-        } catch (RestrictedCardAccessException e) {
-            controlledByPlayer.forEach(Card::relinquishControl);
+        if (previousCard != null) {
+            this.flipSecondCard(playerId, selectedCard, previousCard);
         }
-
-        controlledByPlayer = cards.stream().filter(card -> card.isControlledByPlayer(playerId)).toList();
-
-        if (controlledByPlayer.size() == 2){
-            if (!controlledByPlayer.getFirst().matches(controlledByPlayer.getLast()))
-                controlledByPlayer.forEach(Card::relinquishControl);
-        }
-
-
 
         return this.toString(playerId);
+    }
 
+    private void flipSecondCard(String playerId, Card selectedCard, Card previousCard) {
+        try {
+            selectedCard.flipUpAsSecond(playerId);
+            if (!selectedCard.matches(previousCard)) {
+                selectedCard.relinquishControl();
+                previousCard.relinquishControl();
+            }
+        } catch (RestrictedCardAccessException e) {
+            previousCard.relinquishControl();
+            throw e;
+        }
     }
 
     public String toString(String playerId) {
@@ -76,4 +73,33 @@ public class Board {
 
         return board.toString();
     }
+
+    private int getIndex(int row, int column) {
+        return row * columns + column;
+    }
+
+    private void flipDownUnmatchedCards(String playerId) {
+        cards.stream()
+                .filter(card -> card.wasControlledByPlayer(playerId))
+                .forEach(Card::flipDown);
+    }
+
+    private void removeMatchedCards(String playerId) {
+        Set<Card> controlledByPlayer = cards.stream()
+                .filter(card -> card.isControlledByPlayer(playerId))
+                .collect(Collectors.toSet());
+
+        if (controlledByPlayer.size() == 2) {
+            controlledByPlayer.forEach(Card::removeCard);
+        }
+    }
+
+    private Card getPreviousControlledCard(String playerId) {
+        return cards.stream()
+                .filter(card -> card.isControlledByPlayer(playerId))
+                .findAny()
+                .orElse(null);
+    }
+
 }
+

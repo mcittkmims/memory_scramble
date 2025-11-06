@@ -27,7 +27,6 @@ public class Card {
     }
 
     public synchronized void flipUpAsSecond(String playerId){
-        if(isControlledByPlayer(playerId)) return;
         if (state == CardState.CONTROLLED || state == CardState.NONE)
             throw new RestrictedCardAccessException("Card is controlled by another player or is removed");
         state = CardState.CONTROLLED;
