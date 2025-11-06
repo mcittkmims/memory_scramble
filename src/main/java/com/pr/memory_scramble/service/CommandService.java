@@ -13,7 +13,7 @@ public class CommandService {
         return board.toString(playerId);
     };
 
-    public String flip(String playerId, int row, int column){
-        throw new RuntimeException();
+    public String flip(String playerId, int row, int column) throws InterruptedException {
+        return board.flip(playerId, row, column);
     }
 }

@@ -21,7 +21,7 @@ public class GameController {
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")
-    public String flip(@PathVariable String playerId, @PathVariable int row, @PathVariable int column){
-        throw new UnsupportedOperationException();
+    public String flip(@PathVariable String playerId, @PathVariable int row, @PathVariable int column) throws InterruptedException {
+        return commandService.flip(playerId, row, column);
     }
 }
