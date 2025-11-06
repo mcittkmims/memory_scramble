@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequiredArgsConstructor
 public class GameController {
@@ -16,12 +18,12 @@ public class GameController {
 
     @GetMapping("/look/{playerId}")
     @ResponseStatus(HttpStatus.OK)
-    public String look(@PathVariable String playerId){
+    public CompletableFuture<String> look(@PathVariable String playerId){
         return commandService.look(playerId);
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")
-    public String flip(@PathVariable String playerId, @PathVariable int row, @PathVariable int column) throws InterruptedException {
+    public CompletableFuture<String> flip(@PathVariable String playerId, @PathVariable int row, @PathVariable int column) throws InterruptedException {
         return commandService.flip(playerId, row, column);
     }
 }
