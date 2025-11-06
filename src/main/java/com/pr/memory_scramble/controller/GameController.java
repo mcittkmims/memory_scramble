@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GameController {
 
-    private CommandService commandService;
+    private final CommandService commandService;
 
     @GetMapping("/look/{playerId}")
     @ResponseStatus(HttpStatus.OK)

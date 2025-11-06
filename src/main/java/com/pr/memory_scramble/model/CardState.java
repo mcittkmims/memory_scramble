@@ -1,19 +1,34 @@
 package com.pr.memory_scramble.model;
 
 public enum CardState {
-    DOWN("down"),
-    UP("up"),
-    NONE("none"),
-    CONTROLLED("up"); // or "controlled" if preferred
+    DOWN {
+        @Override
+        public String toString(String playerId, String controlledBy, String value) {
+            return "down";
+        }
+    },
+    UP {
+        @Override
+        public String toString(String playerId, String controlledBy, String value) {
+            return "up " + value;
+        }
+    },
+    NONE {
+        @Override
+        public String toString(String playerId, String controlledBy, String value) {
+            return "none";
+        }
+    },
+    CONTROLLED {
+        @Override
+        public String toString(String playerId, String controlledBy, String value) {
+            if (playerId.equals(controlledBy))
+                return "my " + value;
 
-    private final String label;
+            return "up " + value;
+        }
+    };
 
-    CardState(String label) {
-        this.label = label;
-    }
 
-    @Override
-    public String toString() {
-        return label;
-    }
+    public abstract String toString(String playerId, String controlledBy, String value);
 }

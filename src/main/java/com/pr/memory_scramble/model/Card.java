@@ -21,10 +21,7 @@ public class Card {
     }
 
     public String toString(String playerId){
-        if (state.equals(CardState.CONTROLLED) && playerId.equals(controlledBy)){
-            return "my " + value;
-        }
-        return state + " " + value;
+        return state.toString(playerId, controlledBy, value);
     }
 
 }
