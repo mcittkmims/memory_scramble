@@ -66,7 +66,6 @@ public class Board{
     public String toString(String playerId) {
         StringBuilder board = new StringBuilder(rows + "x" + columns);
         cards.forEach(card -> board.append("\n").append(card.toString(playerId)));
-
         return board.toString();
     }
 
@@ -130,7 +129,7 @@ public class Board{
         }
     }
 
-    public synchronized void watch(String playerId) throws InterruptedException {
+    public synchronized void watch() throws InterruptedException {
         wait();
     }
 }

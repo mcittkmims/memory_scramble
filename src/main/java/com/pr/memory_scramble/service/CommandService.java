@@ -27,7 +27,7 @@ public class CommandService {
     }
 
     public String watch(String playerId) throws InterruptedException {
-        board.watch(playerId);
+        board.watch();
         return board.toString(playerId);
     }
 }

@@ -22,64 +22,49 @@ public class Card {
         this.stateListener.run();
     }
 
-    public void flipUpAsFirst(String playerId) throws InterruptedException {
-        boolean changed = false;
-        synchronized (this) {
-            if (isControlledByPlayer(playerId)) return;
-            while (state == CardState.CONTROLLED) {
-                wait();
-            }
-            if (state == CardState.NONE) {
-                throw new CardRemovedException("Card was already matched!");
-            }
-            if (state == CardState.DOWN) changed = true;
-            state = CardState.CONTROLLED;
-            this.controlledBy = playerId;
+    public synchronized void flipUpAsFirst(String playerId) throws InterruptedException {
+        if (isControlledByPlayer(playerId)) return;
+        while (state == CardState.CONTROLLED) {
+            wait();
         }
-        if (changed) notifyChange();
+        if(state == CardState.NONE){
+            throw new CardRemovedException("Card was already matched!");
+        }
+        if (state == CardState.DOWN) notifyChange();
+
+        state = CardState.CONTROLLED;
+        this.controlledBy = playerId;
     }
 
-    public void flipUpAsSecond(String playerId) {
-        boolean changed = false;
-        synchronized (this) {
-            if (state == CardState.CONTROLLED || state == CardState.NONE)
-                throw new RestrictedCardAccessException("Card is controlled by another player or is removed");
+    public synchronized void flipUpAsSecond(String playerId){
+        if (state == CardState.CONTROLLED || state == CardState.NONE)
+            throw new RestrictedCardAccessException("Card is controlled by another player or is removed");
 
-            if (state == CardState.DOWN) changed = true;
+        if (state == CardState.DOWN) notifyChange();
 
-            state = CardState.CONTROLLED;
-            this.controlledBy = playerId;
-        }
-        if (changed) notifyChange();
+        state = CardState.CONTROLLED;
+        this.controlledBy = playerId;
     }
 
-    public void flipDown() {
-        boolean changed = false;
-        synchronized (this) {
-            if (state != CardState.CONTROLLED && state != CardState.NONE) {
-                state = CardState.DOWN;
-                controlledBy = null;
-                changed = true;
-            }
-            notifyAll();
-        }
-        if (changed) notifyChange();
-    }
-
-    public void relinquishControl() {
-        synchronized (this) {
-            state = CardState.UP;
-            notifyAll();
-        }
-    }
-
-    public void removeCard() {
-        synchronized (this) {
-            state = CardState.NONE;
+    public synchronized void flipDown(){
+        if(state != CardState.CONTROLLED && state != CardState.NONE){
+            state = CardState.DOWN;
             controlledBy = null;
-            notifyAll();
         }
         notifyChange();
+        notifyAll();
+    }
+
+    public synchronized void relinquishControl() {
+        state = CardState.UP;
+        notifyAll();
+    }
+
+    public synchronized void removeCard() {
+        state = CardState.NONE;
+        controlledBy = null;
+        notifyChange();
+        notifyAll();
     }
 
     @Override
