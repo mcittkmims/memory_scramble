@@ -63,7 +63,7 @@ public class Board{
         }
     }
 
-    public synchronized String toString(String playerId) {
+    public String toString(String playerId) {
         StringBuilder board = new StringBuilder(rows + "x" + columns);
         cards.forEach(card -> board.append("\n").append(card.toString(playerId)));
 
