@@ -21,15 +21,23 @@ public class GameController {
 
     @GetMapping("/look/{playerId}")
     @ResponseStatus(HttpStatus.OK)
-    public CompletableFuture<String> look(@Valid @PathVariable @NotBlank String playerId){
+    public String look(@Valid @PathVariable @NotBlank String playerId){
         return commandService.look(playerId);
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")
-    public CompletableFuture<String> flip(
+    public String flip(
             @Valid @PathVariable @NotBlank String playerId,
             @Valid @PathVariable @Min(0) int row,
             @Valid @PathVariable @Min(0) int column) throws InterruptedException {
         return commandService.flip(playerId, row, column);
+    }
+
+    @GetMapping("/replace/{playerId}/{fromCard}/{toCard}")
+    public String map(
+            @Valid @PathVariable @NotBlank String playerId,
+            @Valid @PathVariable @NotBlank String fromCard,
+            @Valid @PathVariable @NotBlank String toCard) {
+        return commandService.map(playerId, fromCard, toCard);
     }
 }

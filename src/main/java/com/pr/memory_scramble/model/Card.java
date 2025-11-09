@@ -53,23 +53,31 @@ public class Card {
     }
 
     @Override
-    public String toString(){
+    public synchronized String toString(){
         return value;
     }
 
-    public String toString(String playerId){
+    public synchronized String toString(String playerId){
         return state.toString(isControlledByPlayer(playerId), value);
     }
 
-    public boolean isControlledByPlayer(String playerId){
+    public synchronized boolean isControlledByPlayer(String playerId){
         return playerId.equals(controlledBy) && state == CardState.CONTROLLED;
     }
 
-    public boolean wasControlledByPlayer(String playerId){
+    public synchronized boolean wasControlledByPlayer(String playerId){
         return playerId.equals(controlledBy) && state == CardState.UP;
     }
 
-    public boolean matches(Card card){
-        return value.equals(card.value);
+    public synchronized boolean matches(Card card){
+        return value.equals(card.getValue());
+    }
+
+    public synchronized String getValue(){
+        return value;
+    }
+
+    public synchronized void setValue(String value){
+        this.value = value;
     }
 }

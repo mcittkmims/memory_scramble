@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class Board {
         }
     }
 
-    public String flip(String playerId, int index) throws InterruptedException {
+    public void flip(String playerId, int index) throws InterruptedException {
         this.flipDownUnmatchedCards(playerId);
         this.removeMatchedCards(playerId);
 
@@ -51,11 +52,9 @@ public class Board {
         if (previousCard != null) {
             this.flipSecondCard(playerId, selectedCard, previousCard);
         }
-
-        return this.toString(playerId);
     }
 
-    public String toString(String playerId) {
+    public synchronized String toString(String playerId) {
         StringBuilder board = new StringBuilder(rows + "x" + columns);
         cards.forEach(card -> board.append("\n").append(card.toString(playerId)));
 
@@ -96,6 +95,27 @@ public class Board {
                 .filter(card -> card.isControlledByPlayer(playerId))
                 .findAny()
                 .orElse(null);
+    }
+
+    public void map(String from, String to){
+        List<Card> fromCards = cards.stream()
+                .filter(card -> card.getValue().equals(from))
+                .sorted(Comparator.comparingInt(System::identityHashCode))
+                .toList();
+
+        map(to, fromCards, 0);
+    }
+
+    private void map(String to, List<Card> fromCards, int index){
+        if(index >= fromCards.size()) {
+            fromCards.forEach(card-> card.setValue(to));
+            return;
+        }
+        Card currentCard = fromCards.get(index);
+
+        synchronized (currentCard){
+            map(to, fromCards, index + 1);
+        }
     }
 
 }
