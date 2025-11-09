@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class Board {
+public class Board{
     @Getter
     private final int rows;
     @Getter
@@ -31,11 +31,20 @@ public class Board {
         columns = Integer.parseInt(size[1]);
 
         for (int i = 1; i <= rows * columns; i++) {
-            String card = lines.get(i);
-            if (card.isBlank()) {
+            String cardValue = lines.get(i);
+            if (cardValue.isBlank()) {
                 throw new IllegalArgumentException("The board config file should not have empty cards!");
             }
-            cards.add(new Card(card));
+
+            Card card = new Card(cardValue);
+
+            card.setStateListener(() -> {
+                synchronized (Board.this) {
+                    Board.this.notifyAll();
+                }
+            });
+
+            cards.add(card);
         }
     }
 
@@ -104,6 +113,9 @@ public class Board {
                 .toList();
 
         map(to, fromCards, 0);
+        synchronized (this){
+            notifyAll();
+        }
     }
 
     private void map(String to, List<Card> fromCards, int index){
@@ -118,5 +130,8 @@ public class Board {
         }
     }
 
+    public synchronized void watch(String playerId) throws InterruptedException {
+        wait();
+    }
 }
 

@@ -2,13 +2,8 @@ package com.pr.memory_scramble.service;
 
 import com.pr.memory_scramble.exception.InvalidCardAddressException;
 import com.pr.memory_scramble.model.Board;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +23,11 @@ public class CommandService {
 
     public String map(String playerId, String from, String to) {
         board.map(from, to);
+        return board.toString(playerId);
+    }
+
+    public String watch(String playerId) throws InterruptedException {
+        board.watch(playerId);
         return board.toString(playerId);
     }
 }

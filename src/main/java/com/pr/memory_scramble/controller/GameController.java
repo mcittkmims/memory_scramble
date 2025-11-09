@@ -40,4 +40,9 @@ public class GameController {
             @Valid @PathVariable @NotBlank String toCard) {
         return commandService.map(playerId, fromCard, toCard);
     }
+
+    @GetMapping("/watch/{playerId}")
+    public String watch(@Valid @PathVariable @NotBlank String playerId) throws InterruptedException {
+        return commandService.watch(playerId);
+    }
 }
