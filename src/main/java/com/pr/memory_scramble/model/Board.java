@@ -10,10 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -99,11 +96,13 @@ public class Board{
     }
 
     public void map(Function<String, String> mapper) {
-        List<Card> allCards = cards.stream()
-                .sorted(Comparator.comparingInt(System::identityHashCode))
-                .toList();
+        Map<String, List<Card>> groupsOfCards = cards.stream()
+                .collect(Collectors.groupingBy(Card::getValue));
 
-        map(mapper, allCards, 0);
+        groupsOfCards.values().forEach(list -> {
+            list.sort(Comparator.comparingInt(System::identityHashCode));
+            map(mapper, list, 0);
+        });
 
         synchronized (this) {
             notifyAll();
