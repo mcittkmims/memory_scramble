@@ -18,7 +18,7 @@ public class AliveScheduler {
     @Scheduled(fixedRate = 10 * 60 * 1000)
     public void keepAlive() {
         try {
-            restTemplate.getForObject(baseUrl + "/ping", Void.class);
+            restTemplate.getForObject(baseUrl + "/ping", String.class);
             log.info("Successful keep-alive ping");
         } catch (Exception e) {
             log.error("Keep-alive ping to /ping failed: {}", e.getMessage());
