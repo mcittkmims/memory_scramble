@@ -21,7 +21,8 @@ public class Card {
     }
 
     private void notifyChange() {
-        this.stateListener.run();
+        if (stateListener != null)
+            this.stateListener.run();
     }
 
     public void flipUpAsFirst(String playerId) throws InterruptedException {
@@ -123,4 +124,24 @@ public class Card {
     public synchronized void setValue(String value) {
         this.value = value;
     }
+
+    public void checkRep() {
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException("Card value must not be null or blank");
+        }
+
+        switch (state) {
+            case NONE, DOWN -> {
+                if (controlledBy != null) {
+                    throw new IllegalStateException("Card in state " + state + " must not be controlled by any player");
+                }
+            }
+            case CONTROLLED -> {
+                if (controlledBy == null || controlledBy.isBlank()) {
+                    throw new IllegalStateException("Controlled card must have a valid player ID");
+                }
+            }
+        }
+    }
+
 }

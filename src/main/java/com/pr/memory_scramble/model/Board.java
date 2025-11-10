@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -35,6 +34,7 @@ public class Board{
         List<String> cardLines = extractCardLines(lines, rows * columns);
 
         initCards(cardLines);
+        checkRep();
     }
 
 
@@ -51,6 +51,7 @@ public class Board{
         if (previousCard != null) {
             this.flipSecondCard(playerId, selectedCard, previousCard);
         }
+        checkRep();
     }
 
     public String toString(String playerId) {
@@ -107,6 +108,7 @@ public class Board{
         synchronized (this) {
             notifyAll();
         }
+        checkRep();
     }
 
     private void map(Function<String, String> mapper, List<Card> cards, int index) {
@@ -219,6 +221,24 @@ public class Board{
         }
 
         return lines;
+    }
+
+    private void checkRep() {
+        if (cards.size() != rows * columns) {
+            throw new IllegalStateException("Board size mismatch: expected " + (rows * columns) + " cards, found " + cards.size());
+        }
+
+        Set<Card> unique = new HashSet<>();
+        for (Card card : cards) {
+            if (card == null) {
+                throw new IllegalStateException("Board contains a null card");
+            }
+            if (!unique.add(card)) {
+                throw new IllegalStateException("Duplicate card reference detected in board");
+            }
+
+            card.checkRep();
+        }
     }
 
 }
