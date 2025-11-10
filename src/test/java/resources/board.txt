@@ -1,0 +1,17 @@
+4x4
+A
+B
+C
+C
+B
+A
+D
+E
+D
+E
+F
+F
+G
+H
+G
+H

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,28 +25,20 @@ public class Board{
     private final List<Card> cards = new ArrayList<>();
 
     public Board(@Value("${memory.board-file:classpath:board.txt}") Resource resource) throws IOException {
-        List<String> lines = Files.readAllLines(Path.of(resource.getFile().getPath()));
-        String[] size = lines.getFirst().split("x");
-        rows = Integer.parseInt(size[0]);
-        columns = Integer.parseInt(size[1]);
+        validateResource(resource);
 
-        for (int i = 1; i <= rows * columns; i++) {
-            String cardValue = lines.get(i);
-            if (cardValue.isBlank()) {
-                throw new IllegalArgumentException("The board config file should not have empty cards!");
-            }
+        List<String> lines = loadLines(resource);
+        String sizeLine = lines.getFirst();
 
-            Card card = new Card(cardValue);
+        int[] dimensions = parseBoardSize(sizeLine);
+        rows = dimensions[0];
+        columns = dimensions[1];
 
-            card.setStateListener(() -> {
-                synchronized (Board.this) {
-                    Board.this.notifyAll();
-                }
-            });
+        List<String> cardLines = extractCardLines(lines, rows * columns);
 
-            cards.add(card);
-        }
+        initCards(cardLines);
     }
+
 
     public void flip(String playerId, int index) throws InterruptedException {
         this.flipDownUnmatchedCards(playerId);
@@ -105,32 +97,125 @@ public class Board{
                 .orElse(null);
     }
 
-    public void map(String from, String to){
-        List<Card> fromCards = cards.stream()
-                .filter(card -> card.getValue().equals(from))
+    public void map(Function<String, String> mapper) {
+        List<Card> allCards = cards.stream()
                 .sorted(Comparator.comparingInt(System::identityHashCode))
                 .toList();
 
-        map(to, fromCards, 0);
-        synchronized (this){
+        map(mapper, allCards, 0);
+
+        synchronized (this) {
             notifyAll();
         }
     }
 
-    private void map(String to, List<Card> fromCards, int index){
-        if(index >= fromCards.size()) {
-            fromCards.forEach(card-> card.setValue(to));
+    private void map(Function<String, String> mapper, List<Card> cards, int index) {
+        if (index >= cards.size()) {
+            cards.forEach(card -> card.setValue(mapper.apply(card.getValue())));
             return;
         }
-        Card currentCard = fromCards.get(index);
 
-        synchronized (currentCard){
-            map(to, fromCards, index + 1);
+        Card currentCard = cards.get(index);
+
+        synchronized (currentCard) {
+            map(mapper, cards, index + 1);
         }
     }
 
     public synchronized void watch() throws InterruptedException {
         wait();
     }
-}
 
+    public void reset() {
+        List<Card> allCards = cards.stream()
+                .sorted(Comparator.comparingInt(System::identityHashCode))
+                .toList();
+
+        reset(allCards, 0);
+
+        synchronized (this) {
+            notifyAll();
+        }
+    }
+
+    private void reset(List<Card> cards, int index) {
+        if (index >= cards.size()) {
+            cards.forEach(Card::reset);
+            return;
+        }
+
+        Card currentCard = cards.get(index);
+
+        synchronized (currentCard) {
+            reset(cards, index + 1);
+        }
+    }
+
+    public Card getCard(int index){
+        return cards.get(index);
+    }
+
+    private void validateResource(Resource resource) {
+        if (resource == null || !resource.exists()) {
+            throw new IllegalArgumentException("Board configuration file is missing!");
+        }
+    }
+
+    private List<String> loadLines(Resource resource) throws IOException {
+        List<String> lines = Files.readAllLines(resource.getFile().toPath())
+                .stream()
+                .filter(line -> !line.trim().isEmpty())
+                .toList();
+
+        if (lines.isEmpty()) {
+            throw new IllegalArgumentException("Board configuration file is empty!");
+        }
+
+        return lines;
+    }
+
+    private int[] parseBoardSize(String sizeLine) {
+        String[] parts = sizeLine.split("x");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid board size format. Expected 'NxM', found: " + sizeLine);
+        }
+
+        try {
+            return new int[]{Integer.parseInt(parts[0]), Integer.parseInt(parts[1])};
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Board size must contain integers: " + sizeLine);
+        }
+    }
+
+    private List<String> extractCardLines(List<String> lines, int expectedCards) {
+        List<String> cardLines = lines.subList(1, lines.size());
+
+        if (cardLines.size() < expectedCards) {
+            throw new IllegalArgumentException("Not enough cards in config file. Expected " + expectedCards + ", found " + cardLines.size());
+        }
+
+        if (cardLines.size() > expectedCards) {
+            throw new IllegalArgumentException("Too many cards in config file. Expected " + expectedCards + ", found " + cardLines.size());
+        }
+
+        for (int i = 0; i < cardLines.size(); i++) {
+            if (cardLines.get(i).isBlank()) {
+                throw new IllegalArgumentException("Card value at line " + (i + 2) + " is blank!");
+            }
+        }
+
+        return cardLines;
+    }
+
+    private void initCards(List<String> cardLines) {
+        for (String value : cardLines) {
+            Card card = new Card(value.trim());
+            card.setStateListener(() -> {
+                synchronized (this) {
+                    this.notifyAll();
+                }
+            });
+            cards.add(card);
+        }
+    }
+}

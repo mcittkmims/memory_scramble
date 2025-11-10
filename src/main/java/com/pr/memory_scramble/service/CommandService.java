@@ -22,7 +22,7 @@ public class CommandService {
     }
 
     public String map(String playerId, String from, String to) {
-        board.map(from, to);
+        board.map(value -> value.equals(from) ? to: value);
         return board.toString(playerId);
     }
 
