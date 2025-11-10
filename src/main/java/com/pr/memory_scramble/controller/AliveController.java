@@ -12,7 +12,7 @@ public class AliveController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public void ping(){
-        return;
+    public String ping(){
+        return "UP";
     }
 }

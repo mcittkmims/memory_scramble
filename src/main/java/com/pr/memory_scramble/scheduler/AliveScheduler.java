@@ -19,6 +19,7 @@ public class AliveScheduler {
     public void keepAlive() {
         try {
             restTemplate.getForObject(baseUrl + "/ping", Void.class);
+            log.info("Successful keep-alive ping");
         } catch (Exception e) {
             log.error("Keep-alive ping to /ping failed: {}", e.getMessage());
         }
