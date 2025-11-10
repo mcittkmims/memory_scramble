@@ -24,6 +24,7 @@ public class GameController {
     }
 
     @GetMapping("/flip/{playerId}/{row},{column}")
+    @ResponseStatus(HttpStatus.OK)
     public String flip(
             @Valid @PathVariable @NotBlank String playerId,
             @Valid @PathVariable @Min(0) int row,
@@ -32,6 +33,7 @@ public class GameController {
     }
 
     @GetMapping("/replace/{playerId}/{fromCard}/{toCard}")
+    @ResponseStatus(HttpStatus.OK)
     public String map(
             @Valid @PathVariable @NotBlank String playerId,
             @Valid @PathVariable @NotBlank String fromCard,
@@ -40,6 +42,7 @@ public class GameController {
     }
 
     @GetMapping("/watch/{playerId}")
+    @ResponseStatus(HttpStatus.OK)
     public String watch(@Valid @PathVariable @NotBlank String playerId) throws InterruptedException {
         return commandService.watch(playerId);
     }

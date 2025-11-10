@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,7 +23,6 @@ public class Board{
     private final int rows;
     @Getter
     private final int columns;
-
     private final List<Card> cards = new ArrayList<>();
 
     public Board(@Value("${memory.board-file:classpath:board.txt}") Resource resource) throws IOException {
@@ -161,19 +162,6 @@ public class Board{
         }
     }
 
-    private List<String> loadLines(Resource resource) throws IOException {
-        List<String> lines = Files.readAllLines(resource.getFile().toPath())
-                .stream()
-                .filter(line -> !line.trim().isEmpty())
-                .toList();
-
-        if (lines.isEmpty()) {
-            throw new IllegalArgumentException("Board configuration file is empty!");
-        }
-
-        return lines;
-    }
-
     private int[] parseBoardSize(String sizeLine) {
         String[] parts = sizeLine.split("x");
         if (parts.length != 2) {
@@ -218,4 +206,20 @@ public class Board{
             cards.add(card);
         }
     }
+
+    private List<String> loadLines(Resource resource) throws IOException {
+        List<String> lines;
+        try (var reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+            lines = reader.lines()
+                    .filter(line -> !line.trim().isEmpty())
+                    .toList();
+        }
+
+        if (lines.isEmpty()) {
+            throw new IllegalArgumentException("Board configuration file is empty!");
+        }
+
+        return lines;
+    }
+
 }
