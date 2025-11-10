@@ -139,10 +139,12 @@
       const updateDropdown = document.getElementById('memory-update');
       const playButton = document.getElementById('memory-play');
       if (serverBox && updateDropdown) {
+        // Prefer a full origin (scheme + host + optional port). If the UI is hosted
+        // on localhost, prefill with the current page origin (including protocol and port).
         serverBox.value = (
           isLocalHost(document.location.hostname)
-            ? `${document.location.hostname}:${document.location.port}`
-            : 'localhost:8080'
+            ? document.location.origin
+            : 'http://localhost:8080'
         );
         serverBox.addEventListener('keydown', function(event) {
           if (event.key === 'Enter') {
@@ -185,25 +187,42 @@
       *               board changes with look; if watch, then uses watch operation
       */
       function play(server, update) {
-        const [hostname, _] = server.split(':');
-        if ( document.location.protocol === 'https:' // we're inside a secure page
-             && ( 
-                  ! isLocalHost(hostname)        // either trying to use a remote server
-                  || window.safari !== undefined // or using Safari, which doesn't make exceptions for localhost
-            ) ) {
-            alert(`
-Unfortunately your browser won't allow this page hosted on https://${document.location.hostname} to contact http://${hostname}.
-
-Try saving this web page to a file on your local machine, and opening that file in your browser instead.
-`);
-            return;
+        // Normalize the server input into an origin (protocol + host + optional port).
+        // Accept inputs like:
+        //   - "http://example.com:8080"
+        //   - "https://example.com"
+        //   - "localhost:8080" (we'll assume http:// if no scheme provided)
+        let parsed;
+        try {
+          parsed = server.match(/^https?:\/\//) ? new URL(server) : new URL('http://' + server);
+        } catch (e) {
+          alert('Invalid server URL: ' + server);
+          return;
         }
-        console.log('playing on server', server);
+        const hostname = parsed.hostname;
+        const protocol = parsed.protocol; // 'http:' or 'https:'
+        const origin = parsed.origin; // normalized base (no trailing slash)
+
+        // If this page is served over https, avoid contacting an http remote server
+        // unless it's localhost (some browsers allow exceptions for localhost).
+        if (document.location.protocol === 'https:' && protocol === 'http:' && (
+             ! isLocalHost(hostname) || window.safari !== undefined
+           )) {
+          alert(`\nUnfortunately your browser won't allow this page hosted on https://${document.location.hostname} to contact ${protocol}//${hostname}.\n\nTry saving this web page to a file on your local machine, and opening that file in your browser instead.\n`);
+          return;
+        }
+
+        console.log('playing on server', origin);
         if (serverBox) { serverBox.disabled = true; }
         if (updateDropdown) { updateDropdown.disabled = true; }
         if (playButton) { playButton.disabled = true; }
         document.body.classList.add('playing');
-        memoryGame.server = server;
+
+        // Store the normalized origin and protocol for later requests
+        memoryGame.server = origin;
+        memoryGame.serverProtocol = protocol;
+        memoryGame.serverHostname = hostname;
+
         if (update === 'watch') {
           lookThenWatch();
         } else {
@@ -242,7 +261,7 @@ Try saving this web page to a file on your local machine, and opening that file 
           // server may have shut down -- start polling for it to return
           setTimeout(lookThenWatch, POLLING_INTERVAL)
         });
-        req.open('GET', 'http://' + memoryGame.server + '/watch/' + playerID);
+  req.open('GET', memoryGame.server + '/watch/' + playerID);
         console.log('sending watch request');
         req.send();
       }
@@ -268,7 +287,7 @@ Try saving this web page to a file on your local machine, and opening that file 
         req.addEventListener('error', function onLookError() {
           console.error('look error', memoryGame.server);
         });
-        req.open('GET', 'http://' + memoryGame.server + '/look/' + playerID);
+  req.open('GET', memoryGame.server + '/look/' + playerID);
         console.log('sending look request');
         req.send();
       }
@@ -288,8 +307,8 @@ Try saving this web page to a file on your local machine, and opening that file 
         flippingCell.classList.add('card-waiting');
         const col = indexOfElement(flippingCell);
         const row = indexOfElement(flippingCell.parentElement);
-        const url = memoryGame.server + '/flip/' + playerID + '/' + row + ',' + col;
-        const req = new XMLHttpRequest();
+  const url = memoryGame.server + '/flip/' + playerID + '/' + row + ',' + col;
+  const req = new XMLHttpRequest();
         req.addEventListener('load', function onFlipLoad() {
           if (req.status === 200) { // successful
             console.log('flip response', this.responseText.replace(/\r?\n/g, '\u21B5'));
@@ -307,7 +326,7 @@ Try saving this web page to a file on your local machine, and opening that file 
         req.addEventListener('error', function onFlipError() {
             console.error('flip error', url); // specific error may be handled in load, above
         });
-        req.open('GET', 'http://' + url);
+  req.open('GET', url);
         console.log('sending flip request');
         req.send();
       }
@@ -326,7 +345,7 @@ Try saving this web page to a file on your local machine, and opening that file 
         req.addEventListener('error', function onLookError() {
           console.error('replace error', memoryGame.server);
         });
-        req.open('GET', 'http://' + memoryGame.server + '/replace/' + playerID + '/' + fromCard + '/' + toCard);
+  req.open('GET', memoryGame.server + '/replace/' + playerID + '/' + fromCard + '/' + toCard);
         console.log('sending replace request');
         req.send();
       }
