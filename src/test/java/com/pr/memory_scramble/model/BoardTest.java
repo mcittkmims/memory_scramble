@@ -193,10 +193,6 @@ class BoardTest {
 
         @Test
         void testMapDuringCardMatch_DoesNotBreakMatching() throws InterruptedException {
-            Card card1 = board.getCard(1);
-            Card card2 = board.getCard(4);
-
-
             AtomicBoolean mappingDone = new AtomicBoolean(false);
 
             Thread mapper = new Thread(() -> {
@@ -220,8 +216,8 @@ class BoardTest {
 
             board.flip("p1", 2);
 
-            assertTrue(card1.getState() == CardState.NONE, "Card1 should be removed after matching");
-            assertTrue(card2.getState() == CardState.NONE, "Card2 should be removed after matching");
+            assertTrue(board.getCard(1).getState() == CardState.NONE, "Card1 should be removed after matching");
+            assertTrue(board.getCard(4).getState() == CardState.NONE, "Card2 should be removed after matching");
             assertTrue(mappingDone.get(), "Mapping should have completed concurrently");
         }
 

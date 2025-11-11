@@ -286,13 +286,17 @@ public class Board {
     }
 
     /**
-     * Retrieves a card at the specified index.
+     * Retrieves a snapshot copy of the card at the specified index.
+     * Returns a defensive copy to prevent external modification of the internal card state.
+     * The returned copy reflects the card's state at the time of retrieval but is not
+     * synchronized with subsequent changes to the original card.
      *
-     * @param index the index of the card to retrieve
-     * @return the card at the specified index
+     * @param index the index of the card to retrieve (0-based, in row-major order)
+     * @return a copy of the card at the specified index with the same value, state, and controller
+     * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= rows * columns)
      */
     public Card getCard(int index) {
-        return cards.get(index);
+        return cards.get(index).copy();
     }
 
     /**

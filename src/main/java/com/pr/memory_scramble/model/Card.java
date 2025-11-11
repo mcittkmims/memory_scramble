@@ -261,6 +261,24 @@ public class Card {
     }
 
     /**
+     * Creates a shallow copy of this card with the same value, state, and controller.
+     * Used to provide read-only snapshots of card state without exposing the internal
+     * mutable card reference. The copy is not registered with any state listeners.
+     * 
+     * Note: This method is not synchronized as it only reads immutable references.
+     * The copied card maintains the same state and controlledBy values at the time
+     * of copying, but subsequent changes to the original will not affect the copy.
+     *
+     * @return a new Card instance with the same value, state, and controller as this card
+     */
+    public Card copy() {
+        Card copy = new Card(this.value);
+        copy.controlledBy = this.controlledBy;
+        copy.state = this.state;
+        return copy;
+    }
+
+    /**
      * Checks the representation invariant of the card.
      * Verifies that the card value is valid and the state-ownership relationship is
      * consistent.
@@ -277,10 +295,6 @@ public class Card {
                 if (controlledBy != null) {
                     throw new IllegalStateException("Card in state " + state + " must not be controlled by any player");
                 }
-            }
-            case UP -> {
-                // UP state can have controlledBy set (from a previous failed match)
-                // or be null, so no invariant to check for controlledBy
             }
             case CONTROLLED -> {
                 if (controlledBy == null || controlledBy.isBlank()) {
