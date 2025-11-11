@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A mutable Card in a memory scramble game that can be flipped, matched, and controlled by players.
- * Cards transition through states (DOWN, UP, CONTROLLED, NONE) and track player ownership.
+ * A mutable Card in a memory scramble game that can be flipped, matched, and
+ * controlled by players.
+ * Cards transition through states (DOWN, UP, CONTROLLED, NONE) and track player
+ * ownership.
  */
 public class Card {
     private String value;
@@ -19,29 +21,34 @@ public class Card {
     private Runnable stateListener;
 
     // Rep invariant:
-    //   - value != null && !value.isBlank()
-    //   - state in {DOWN, UP, CONTROLLED, NONE}
-    //   - if state == DOWN || state == NONE, then controlledBy == null
-    //   - if state == CONTROLLED, then controlledBy != null && !controlledBy.isBlank()
-    //   - stateListener may be null (listener is optional)
+    // - value != null && !value.isBlank()
+    // - state in {DOWN, UP, CONTROLLED, NONE}
+    // - if state == DOWN || state == NONE, then controlledBy == null
+    // - if state == CONTROLLED, then controlledBy != null &&
+    // !controlledBy.isBlank()
+    // - stateListener may be null (listener is optional)
     //
     // Abstraction function:
-    //   AF(value, controlledBy, state, stateListener) = 
-    //     A game card with display value 'value' that is:
-    //       - face down and unowned if state == DOWN
-    //       - face up and unowned (after failed match) if state == UP
-    //       - face up and owned by player 'controlledBy' if state == CONTROLLED
-    //       - removed from play if state == NONE
+    // AF(value, controlledBy, state, stateListener) =
+    // A game card with display value 'value' that is:
+    // - face down and unowned if state == DOWN
+    // - face up and unowned (after failed match) if state == UP
+    // - face up and owned by player 'controlledBy' if state == CONTROLLED
+    // - removed from play if state == NONE
     //
     // Safety from rep exposure:
-    //   - All fields are private
-    //   - value is a String (immutable), but setValue() allows mutation for map operations
-    //   - controlledBy is a String (immutable) and never returned directly
-    //   - state is a CardState enum (immutable), returned via getter but cannot be modified externally
-    //   - stateListener is a Runnable interface reference; clients can set it but cannot 
-    //     observe or modify the rep through it since it only calls back to the board
-    //   - All methods are synchronized or properly guard access to mutable state
-    //   - The card maintains its own invariants through synchronized state transitions
+    // - All fields are private
+    // - value is a String (immutable), but setValue() allows mutation for map
+    // operations
+    // - controlledBy is a String (immutable) and never returned directly
+    // - state is a CardState enum (immutable), returned via getter but cannot be
+    // modified externally
+    // - stateListener is a Runnable interface reference; clients can set it but
+    // cannot
+    // observe or modify the rep through it since it only calls back to the board
+    // - All methods are synchronized or properly guard access to mutable state
+    // - The card maintains its own invariants through synchronized state
+    // transitions
 
     /**
      * Constructs a new Card with the specified value.

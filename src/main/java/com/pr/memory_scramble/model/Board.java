@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 
 /**
  * A mutable Board representing the game state of a memory scramble game.
- * Manages a rectangular grid of cards and coordinates player interactions with them.
+ * Manages a rectangular grid of cards and coordinates player interactions with
+ * them.
  */
 @Component
 public class Board {
@@ -26,26 +27,30 @@ public class Board {
     private final List<Card> cards = new ArrayList<>();
 
     // Rep invariant:
-    //   - rows > 0 && columns > 0
-    //   - cards.size() == rows * columns
-    //   - all elements in cards are non-null
-    //   - no duplicate Card references in cards (each Card object appears exactly once)
-    //   - each Card in cards satisfies its own rep invariant
+    // - rows > 0 && columns > 0
+    // - cards.size() == rows * columns
+    // - all elements in cards are non-null
+    // - no duplicate Card references in cards (each Card object appears exactly
+    // once)
+    // - each Card in cards satisfies its own rep invariant
     //
     // Abstraction function:
-    //   AF(rows, columns, cards) = 
-    //     A rectangular game board with dimensions rows x columns, where
-    //     cards[i] represents the card at position i in row-major order
-    //     (row = i / columns, column = i % columns)
+    // AF(rows, columns, cards) =
+    // A rectangular game board with dimensions rows x columns, where
+    // cards[i] represents the card at position i in row-major order
+    // (row = i / columns, column = i % columns)
     //
     // Safety from rep exposure:
-    //   - rows and columns are primitive final int values, exposed via getters (safe - immutable)
-    //   - cards is a private final List<Card>; never returned directly to clients
-    //   - getCard(index) returns references to mutable Card objects, but this is intentional:
-    //     Cards are designed to be shared and mutated through their synchronized methods
-    //   - Card objects maintain their own invariants through synchronization
-    //   - map() and reset() acquire locks in a consistent order to prevent deadlocks
-    //   - Board's own synchronization protects access to the cards list structure
+    // - rows and columns are primitive final int values, exposed via getters (safe
+    // - immutable)
+    // - cards is a private final List<Card>; never returned directly to clients
+    // - getCard(index) returns references to mutable Card objects, but this is
+    // intentional:
+    // Cards are designed to be shared and mutated through their synchronized
+    // methods
+    // - Card objects maintain their own invariants through synchronization
+    // - map() and reset() acquire locks in a consistent order to prevent deadlocks
+    // - Board's own synchronization protects access to the cards list structure
 
     /**
      * Constructs a Board by loading configuration from a resource file.

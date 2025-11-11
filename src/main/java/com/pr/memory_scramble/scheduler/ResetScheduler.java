@@ -19,7 +19,7 @@ public class ResetScheduler {
      * Flips all cards face down and clears all player controls.
      * Only active when not in simulation profile.
      */
-    @Scheduled(fixedRate = 2 * 60 * 1000)
+    @Scheduled(fixedRate = 5 * 60 * 1000)
     public void resetBoard() {
         board.reset();
     }

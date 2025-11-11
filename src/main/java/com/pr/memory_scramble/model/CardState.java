@@ -7,18 +7,18 @@ package com.pr.memory_scramble.model;
  * This is an immutable enumerated type.
  * 
  * Rep invariant:
- *   - true (enum values are fixed and always valid)
+ * - true (enum values are fixed and always valid)
  * 
  * Abstraction function:
- *   AF(DOWN) = card is face down, hidden from all players
- *   AF(UP) = card is face up, visible to all players but not controlled
- *   AF(CONTROLLED) = card is face up and controlled by a player during matching
- *   AF(NONE) = card has been matched and removed from the game
+ * AF(DOWN) = card is face down, hidden from all players
+ * AF(UP) = card is face up, visible to all players but not controlled
+ * AF(CONTROLLED) = card is face up and controlled by a player during matching
+ * AF(NONE) = card has been matched and removed from the game
  * 
  * Safety from rep exposure:
- *   - Enum values are immutable and publicly accessible by design
- *   - toString() returns a new String based on parameters, never internal state
- *   - No mutable fields in this type
+ * - Enum values are immutable and publicly accessible by design
+ * - toString() returns a new String based on parameters, never internal state
+ * - No mutable fields in this type
  */
 public enum CardState {
     /**

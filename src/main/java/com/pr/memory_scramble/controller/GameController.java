@@ -67,7 +67,7 @@ public class GameController {
             @Valid @PathVariable @NotBlank String playerId,
             @Valid @PathVariable @NotBlank String fromCard,
             @Valid @PathVariable @NotBlank String toCard) {
-        return commandService.map(playerId, fromCard, toCard);
+        return commandService.map(playerId, value -> value.equals(fromCard) ? toCard : value);
     }
 
     /**

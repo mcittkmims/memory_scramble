@@ -5,6 +5,8 @@ import com.pr.memory_scramble.model.Board;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Function;
+
 @Service
 @RequiredArgsConstructor
 public class CommandService {
@@ -46,12 +48,11 @@ public class CommandService {
      *
      * @param playerId the unique identifier of the player performing the map
      *                 operation
-     * @param from     the original card value to be replaced
-     * @param to       the new card value to replace with
+     * @param f a function that transforms card values (oldValue -> newValue)
      * @return the updated board state after the mapping operation
      */
-    public String map(String playerId, String from, String to) {
-        board.map(value -> value.equals(from) ? to : value);
+    public String map(String playerId, Function<String, String> f) {
+        board.map(f);
         return board.toString(playerId);
     }
 
