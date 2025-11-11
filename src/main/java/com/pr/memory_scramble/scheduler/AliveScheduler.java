@@ -17,6 +17,12 @@ public class AliveScheduler {
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
+    /**
+     * Periodically sends a keep-alive ping to prevent the application from being
+     * idled.
+     * Runs every 10 minutes to ensure the application remains active.
+     * Only active when not in simulation profile.
+     */
     @Scheduled(fixedRate = 10 * 60 * 1000)
     public void keepAlive() {
         try {

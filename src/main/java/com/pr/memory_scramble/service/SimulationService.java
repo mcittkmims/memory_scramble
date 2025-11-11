@@ -36,9 +36,15 @@ public class SimulationService {
 
     private final Random random = new Random();
 
+    /**
+     * Initializes and runs the simulation after the application context is ready.
+     * Creates multiple player threads that concurrently attempt to flip cards.
+     * Each player makes a configured number of attempts with random delays.
+     */
     @PostConstruct
     public void runSimulation() {
-        log.info("Starting simulation: {} players, {} tries each, board {}x{}", players, tries, board.getRows(), board.getColumns());
+        log.info("Starting simulation: {} players, {} tries each, board {}x{}", players, tries, board.getRows(),
+                board.getColumns());
 
         ExecutorService executor = Executors.newFixedThreadPool(players);
 
@@ -62,6 +68,14 @@ public class SimulationService {
         log.info("Simulation finished.");
     }
 
+    /**
+     * Simulates a single player's gameplay.
+     * The player attempts to flip pairs of cards with random delays between
+     * actions.
+     * Handles concurrency exceptions when cards are controlled by other players.
+     *
+     * @param playerId the unique identifier of the player being simulated
+     */
     private void simulatePlayer(String playerId) {
         log.info("{} joined the game", playerId);
 
@@ -91,11 +105,22 @@ public class SimulationService {
         log.info("{} finished playing", playerId);
     }
 
-
+    /**
+     * Generates a random card index within the board dimensions.
+     *
+     * @return a random index from 0 to (rows * columns - 1)
+     */
     private int randomIndex() {
         return random.nextInt(board.getRows() * board.getColumns());
     }
 
+    /**
+     * Introduces a random delay to simulate realistic player behavior.
+     * The delay is randomly distributed between a minimum value and the configured
+     * maximum.
+     *
+     * @throws InterruptedException if the thread is interrupted during sleep
+     */
     private void randomDelay() throws InterruptedException {
         double minMs = 0.1;
         double delayMs = minMs + random.nextDouble() * (maxDelayMilliseconds - minMs);

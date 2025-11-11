@@ -13,9 +13,14 @@ public class ResetScheduler {
 
     private final Board board;
 
+    /**
+     * Periodically resets the game board to its initial state.
+     * Runs every 2 minutes to ensure fresh game starts.
+     * Flips all cards face down and clears all player controls.
+     * Only active when not in simulation profile.
+     */
     @Scheduled(fixedRate = 2 * 60 * 1000)
     public void resetBoard() {
         board.reset();
     }
 }
-

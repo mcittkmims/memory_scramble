@@ -33,9 +33,8 @@ class BoardTest {
                 assertNotNull(card.getValue(), "Card value at index " + i + " should not be null");
                 assertFalse(card.getValue().isBlank(), "Card value at index " + i + " should not be blank");
             }
-
             assertEquals(expectedCardCount,
-                    board.toString("p1").lines().count() - 1, // minus the "NxM" header line
+                    board.toString("p1").lines().count() - 1,
                     "Number of cards in board should match expected count");
         }
     }
