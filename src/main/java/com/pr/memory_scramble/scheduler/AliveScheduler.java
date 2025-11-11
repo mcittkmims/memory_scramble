@@ -2,12 +2,14 @@ package com.pr.memory_scramble.scheduler;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 @Log4j2
+@Profile("!simulation")
 public class AliveScheduler {
 
     private final RestTemplate restTemplate = new RestTemplate();

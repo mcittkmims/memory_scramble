@@ -55,6 +55,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.pr.memory_scramble.MemoryScrambleApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
